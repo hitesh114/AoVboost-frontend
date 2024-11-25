@@ -3,9 +3,14 @@ import SearchAndFilter from "../Components/SearchAndFilter";
 import TableComponent from "../Components/TableComponents";
 
 const Offers = ({ searchTerm, setSearchTerm, filterValue, setFilterValue, data, handleDataChange }) => {
-  const filteredData = data.filter((offer) =>
-    offer.offer.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredData = data
+  .filter((offer) =>
+    offer.offer.toLowerCase().includes(searchTerm.toLowerCase()))
+  .filter((offer) => {
+    if (filterValue === "Enabled") return offer.enabled;
+    if (filterValue === "Disabled") return !offer.enabled;
+    return true; // For "All"
+  });
 
   return (
     <>

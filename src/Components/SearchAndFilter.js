@@ -13,15 +13,25 @@ const SearchAndFilter = ({
   const navigate = useNavigate();
   const [filterData, setfilterData] = useState([]);
   useEffect(() => {
-    if (filterValue === "All") {
-      setfilterData(data);
-    } else {
-      const filteredData = data.filter(
+    let filteredData = data;
+
+    // Filter by category
+    if (filterValue !== "All") {
+      filteredData = filteredData.filter(
         (offer) => offer.category === filterValue
       );
-      setfilterData(filteredData);
     }
+
+    // Filter by enabled status
+    if (filterValue === "Enabled") {
+      filteredData = filteredData.filter((offer) => offer.enabled);
+    } else if (filterValue === "Disabled") {
+      filteredData = filteredData.filter((offer) => !offer.enabled);
+    }
+
+    setfilterData(filteredData);
   }, [filterValue, data]);
+
   /* **************************************************************************************************************** */
   return (
     <div className="box_sty1">
@@ -44,6 +54,8 @@ const SearchAndFilter = ({
           aria-expanded="false"
         >
           <option value="All">All</option>
+          <option value="Enabled">Enabled</option>
+          <option value="Disabled">Disabled</option>
         </select>
         <div className="flex-grow-1"></div>
 

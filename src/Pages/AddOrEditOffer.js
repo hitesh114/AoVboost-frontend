@@ -11,6 +11,7 @@ const CreateNewOffer = ({ data, setData }) => {
     conversions: "",
     revenue: "",
     conversionRate: "",
+    enabled: true,
   });
   const editingOffer = !!id;
   /* ************************************************************************************************ */
@@ -54,6 +55,7 @@ const CreateNewOffer = ({ data, setData }) => {
             parseInt(formValues.impressions, 10)) *
           100
         ).toFixed(2) + "%",
+        enabled: formValues.enabled,
     };
     try {
       if (editingOffer) {
@@ -78,6 +80,7 @@ const CreateNewOffer = ({ data, setData }) => {
         conversions: "",
         revenue: "",
         conversionRate: "",
+        enabled: true,
       }); // Reset form
       navigate("/offers");
     } catch (error) {
@@ -142,6 +145,18 @@ const CreateNewOffer = ({ data, setData }) => {
               onChange={handleChange}
               required
             />
+          </div>
+          {/* Enabled Checkbox */}
+          <div className="col form-group">
+            <label>
+              <input
+                type="checkbox"
+                name="enabled"
+                checked={formValues.enabled}
+                onChange={() => setFormValues((prev) => ({ ...prev, enabled: !prev.enabled }))}
+              />
+              Enabled
+            </label>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import { deleteOffer } from "../Apis/API";
+import { deleteOffer,updateOffer } from "../Apis/API";
 import { useNavigate } from "react-router-dom";
 /* *************************************************************************** */
 function TableComponent({ data, setData }) {
@@ -13,6 +13,29 @@ function TableComponent({ data, setData }) {
       console.error("Error deleting offer:", error);
     }
   };
+
+  const toggleEnable = async (id) => {
+    const updatedData = data.map((offer) => {
+      if (offer.id === id) {
+        return { ...offer, enabled: !offer.enabled };
+      }
+      return offer;
+    });
+  
+    setData(updatedData);
+  
+    // Find the updated offer
+    const updatedOffer = updatedData.find((offer) => offer.id === id);
+    try {
+      // Call the API to update the offer
+      await updateOffer(id, updatedOffer);
+    } catch (error) {
+      console.error("Error updating offer:", error);
+      // Optionally, revert the state if the API call fails
+      setData(data);
+    }
+  };
+
   /* *************************************************************************** */
   return (
     <>
@@ -20,6 +43,7 @@ function TableComponent({ data, setData }) {
         <table className="table tbl-sty1">
           <thead>
             <tr>
+            <th className="text-center"></th>
               <th className="text-center">Offer</th>
               <th className="text-center">Impressions</th>
               <th className="text-center">Conversions</th>
@@ -31,6 +55,16 @@ function TableComponent({ data, setData }) {
           <tbody>
             {data.map((offer) => (
               <tr key={offer.id}>
+                <td className="text-center">
+                <label className="switch">
+                  <input
+                    type="checkbox"
+                    checked={offer.enabled}
+                    onChange={() => toggleEnable(offer.id)}
+                  />
+                  <span className="slider round"></span>
+                </label>
+              </td>
                 <td className="text-center">{offer.offer}</td>
                 <td className="text-center">{offer.impressions}</td>
                 <td className="text-center">{offer.conversions}</td>
