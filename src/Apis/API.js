@@ -1,19 +1,19 @@
 import axios from "axios";
-import { API_URL, url } from './APIOffer';
+import { Server_URL, Items } from './APIOffer';
 
-export const fetchData = async () => {
-  const response = await axios.get(API_URL +  url);
+export const GetItems = async () => {
+  const response = await axios.get(Server_URL + Items);
   return response.data;
 };
 
 export const deleteOffer = async (id) => {
-  return await fetch(`${API_URL}${url}/${id}`, { method: "DELETE" });
+  return await axios.delete(`${Server_URL}${Items}/${id}`);
 };
 
 export const updateOffer = async (id, newOffer) => {
-  return await axios.put(`${API_URL}${url}/${id}`, newOffer);
+  return await axios.put(`${Server_URL}${Items}/${id}`, newOffer);
 };
 
 export const addOffer = async (newOffer) => {
-  return await axios.post(API_URL+ url, newOffer);
+  return await axios.post(Server_URL+ Items, newOffer);
 };

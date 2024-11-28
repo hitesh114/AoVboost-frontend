@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { updateOffer,addOffer } from "../Apis/API.js";
+import { updateOffer,addOffer,fetchData, GetItems } from "../Apis/API.js";
 /* ***************************************************************************** */
-const CreateNewOffer = ({ data, setData }) => {
+const CreateNewOffer = () => {
+  const [data, setData] = useState([]);
+  const [offers, setOffers] = useState([]);
   const { id } = useParams();
   const navigate = useNavigate();
   const [formValues, setFormValues] = useState({
@@ -15,6 +17,20 @@ const CreateNewOffer = ({ data, setData }) => {
   });
   const editingOffer = !!id;
   /* ************************************************************************************************ */
+  useEffect(() => {
+    const loadData = async () => {
+        const fetchedData = await GetItems();
+        console.log("Fetched Data in Offers:", fetchedData);
+        setData(fetchedData);
+    };
+    loadData();
+}, []);
+const handleDataChange = (newData) => {
+   setData(newData);
+   setOffers(newData);
+   
+ }; 
+ /* ************************************************************************************************ */
   /* Edit or Add */
   useEffect(() => {
     if (editingOffer) {

@@ -6,7 +6,7 @@ body{ background-color: #e6e6e6; }
 .header .logo{ width: 100px; }
 
 .navlinks{ display: flex; column-gap: 30px; padding: 0 15px; color: #77919d; }
-.navlinks a{ text-decoration: none; color: #77919d; font-weight: 500; }
+.navlinks a i{ text-decoration: none; color: #77919d; font-weight: 500; }
 .navlinks a:hover{ color: #3ebfd1; }
 
 .box_sty1{ background-color: #fff; padding: 25px; box-shadow: 0 0 5px #00000030;}

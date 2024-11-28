@@ -23,18 +23,30 @@ function TableComponent({ data, setData }) {
     });
   
     setData(updatedData);
-  
-    // Find the updated offer
     const updatedOffer = updatedData.find((offer) => offer.id === id);
     try {
-      // Call the API to update the offer
       await updateOffer(id, updatedOffer);
     } catch (error) {
       console.error("Error updating offer:", error);
-      // Optionally, revert the state if the API call fails
       setData(data);
     }
   };
+
+  const totalImpressions = data.reduce((total, offer) => {
+    return offer.enabled ? total + offer.impressions : total;
+  }, 0);
+
+  const totalConversions = data.reduce((total, offer) => {
+    return offer.enabled ? total + offer.conversions : total;
+  }, 0);
+
+  const totalRevenue = data.reduce((total, offer) => {
+    return offer.enabled ? total + offer.revenue : total;
+  }, 0).toFixed(2);
+
+  const totalConversionRate = data.reduce((total, offer) => {
+    return offer.enabled ? total + parseFloat(offer.conversionRate) : total;
+  }, 0).toFixed(2);
 
   /* *************************************************************************** */
   return (
@@ -91,6 +103,17 @@ function TableComponent({ data, setData }) {
               </tr>
             ))}
           </tbody>
+          <tfoot>
+            <tr>
+              <th className="text-center">Total</th>
+              <th></th>
+              <th className="text-center" >{totalImpressions}</th>
+              <th className="text-center" >{totalConversions}</th>
+              <th className="text-center" >${totalRevenue}</th>
+              <th className="text-center" >{totalConversionRate} %</th>
+              <th></th>
+            </tr>
+          </tfoot>
         </table>
       </div>
     </>
