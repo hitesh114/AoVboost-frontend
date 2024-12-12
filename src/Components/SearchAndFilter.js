@@ -13,14 +13,12 @@ const SearchAndFilter = ({
   const [filterData, setfilterData] = useState([]);
   useEffect(() => {
     let filteredData = data;
-
     // Filter by category
     if (filterValue !== "All") {
       filteredData = filteredData.filter(
         (offer) => offer.category === filterValue
       );
     }
-
     // Filter by enabled status
     if (filterValue === "Enabled") {
       filteredData = filteredData.filter((offer) => offer.enabled);

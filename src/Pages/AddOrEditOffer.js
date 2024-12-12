@@ -1,14 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { updateOffer,addOffer,fetchData, GetItems } from "../Apis/API.js";
+import {
+  modifyOffer,
+  createOffer,
+  fetchOffer,
+  GetItems,
+} from "../Apis/APIOffer.js";
 /* ***************************************************************************** */
-const CreateNewOffer = () => {
+const AddOrEditOffer = () => {
   const [data, setData] = useState([]);
-  const [offers, setOffers] = useState([]);
   const { id } = useParams();
   const navigate = useNavigate();
   const [formValues, setFormValues] = useState({
     offer: "",
+    discountCode: "",
+    minimumCartValue: "",
+    discountPercentage: "",
+    productId: "",
+    productVariantId: "",
+    backgroundColor: "FFFFFF",
+    fontColor: "000000",
+    buttonColor: "4997E0",
+    buttonFontColor: "FFFFFF",
+    buttonHoverColor: "FFFFFF",
+    buttonHoverFontColor: "000000",
+    expirationDate: "",
     impressions: "",
     conversions: "",
     revenue: "",
@@ -19,18 +35,13 @@ const CreateNewOffer = () => {
   /* ************************************************************************************************ */
   useEffect(() => {
     const loadData = async () => {
-        const fetchedData = await GetItems();
-        console.log("Fetched Data in Offers:", fetchedData);
-        setData(fetchedData);
+      const fetchedData = await fetchOffer();
+      console.log("Fetched Data in Offers:", fetchedData); /* Fetch using ID */
+      setData(fetchedData);
     };
     loadData();
-}, []);
-const handleDataChange = (newData) => {
-   setData(newData);
-   setOffers(newData);
-   
- }; 
- /* ************************************************************************************************ */
+  }, []);
+  /* ************************************************************************************************ */
   /* Edit or Add */
   useEffect(() => {
     if (editingOffer) {
@@ -51,7 +62,7 @@ const handleDataChange = (newData) => {
     const { name, value } = e.target;
     setFormValues((prev) => ({
       ...prev,
-      [name]: name === "offer" ? value : Number(value),
+      [name]: name === "offer" ? value : value,
     }));
   };
   /* ***************************************************************************************************** */
@@ -62,6 +73,19 @@ const handleDataChange = (newData) => {
     const newOffer = {
       id: formValues.id,
       offer: formValues.offer,
+      discountCode: formValues.discountCode,
+      minimumCartValue: Number(formValues.minimumCartValue),
+      discountPercentage: Number(formValues.discountPercentage),
+      productId: formValues.productId,
+      productVariantId: formValues.productVariantId,
+      backgroundColor: formValues.backgroundColor,
+      fontColor: formValues.fontColor,
+      buttonColor: formValues.buttonColor,
+      buttonFontColor: formValues.buttonFontColor,
+      buttonHoverColor: formValues.buttonHoverColor,
+      buttonHoverFontColor: formValues.buttonHoverFontColor,
+      expirationDate: formValues.expirationDate,
+      runUntilPaused: formValues.runUntilPaused,
       impressions: parseInt(formValues.impressions, 10),
       conversions: parseInt(formValues.conversions, 10),
       revenue: parseFloat(formValues.revenue),
@@ -71,13 +95,13 @@ const handleDataChange = (newData) => {
             parseInt(formValues.impressions, 10)) *
           100
         ).toFixed(2) + "%",
-        enabled: formValues.enabled,
+      enabled: formValues.enabled,
     };
     try {
       if (editingOffer) {
         console.log("New offer data:", newOffer);
         // Edit existing offer
-        await updateOffer(formValues.id, newOffer);
+        await modifyOffer(formValues.id, newOffer);
         console.log("New offer data:", newOffer);
         setData((prevData) =>
           prevData.map((offer) =>
@@ -86,12 +110,25 @@ const handleDataChange = (newData) => {
         );
       } else {
         // Add new offer
-        const response = await addOffer(newOffer);
+        const response = await createOffer(newOffer);
         setData((prevData) => [...prevData, response.data]);
       }
       setFormValues({
         id: "",
         offer: "",
+        discountCode: "",
+        minimumCartValue: "",
+        discountPercentage: "",
+        productId: "",
+        productVariantId: "",
+        backgroundColor: "000000",
+        fontColor: "000000",
+        buttonColor: "4997E0",
+        buttonFontColor: "000000",
+        buttonHoverColor: "000000",
+        buttonHoverFontColor: "000000",
+        expirationDate: "",
+        runUntilPaused: true,
         impressions: "",
         conversions: "",
         revenue: "",
@@ -108,26 +145,146 @@ const handleDataChange = (newData) => {
   };
   /************************************************************************************************************* */
   return (
-    <div className="box_sty1">
-      <div className="create-offer">
-        <h1 className="mb-4">
+    <div className="box_sty1 p-4 ">
+      <div className="create-offer col-md-8">
+        <h1 className="mb-4 box_sty1 ">
           {editingOffer ? "Edit Offer" : "Create New Offer"}
         </h1>
-        <div className="row">
+        <div className="box_sty1">
           {/* Offer Code */}
-          <div className="col form-group">
+          <div className=" form-group mb-4 box_sty1">
+            <label htmlFor="discountCode">
+              Offer Discount Code (Must Be Unique)
+            </label>
             <input
               className="form-control"
               type="text"
               name="offer"
-              placeholder="Offer Code"
+              placeholder="e.g. OFFER2020"
               value={formValues.offer}
               onChange={handleChange}
               required
             />
           </div>
+          {/* Minimum Cart Value */}
+          <div className="form-group mb-4 box_sty1">
+            <label htmlFor="minimumCartValue">
+              Minimum Cart Value (to Trigger Offer)
+            </label>
+            <input
+              className="form-control"
+              type="number"
+              name="minimumCartValue"
+              value={formValues.minimumCartValue}
+              onChange={handleChange}
+              placeholder="$ Minimum Cart Value"
+              min="0"
+              step="0.01"
+              required
+            />
+          </div>
+          {/* Set Offer Discount */}
+          <div className="form-group mb-4 box_sty1">
+            <label htmlFor="discountPercentage">Set Offer Discount</label>
+            <input
+              className="form-control"
+              type="number"
+              id="discountPercentage"
+              name="discountPercentage"
+              value={formValues.discountPercentage}
+              onChange={handleChange}
+              placeholder="% Set Offer Discount "
+              min="0"
+              max="100"
+              required
+            />
+          </div>
+          {/* Choose Your Offer Product */}
+          <div className="form-group mb-4 box_sty1">
+            <label htmlFor="productId">Choose Your Offer Product</label>
+            <select
+              className="form-control "
+              id="productId"
+              name="productId"
+              value={formValues.productId}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select a product</option>
+              {/* Add your product options here */}
+            </select>
+          </div>
+
+          {/* Choose Your Offer Product Variant */}
+          <div className="form-group mb-4 box_sty1">
+            <label htmlFor="productVariantId">
+              Choose Your Offer Product Variant
+            </label>
+            <select
+              className="form-control"
+              id="productVariantId"
+              name="productVariantId"
+              value={formValues.productVariantId}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select a variant</option>
+              {/* Add your variant options here */}
+            </select>
+          </div>
+
+          {/* Color Inputs */}
+          {[
+            "backgroundColor",
+            "fontColor",
+            "buttonColor",
+            "buttonFontColor",
+            "buttonHoverColor",
+            "buttonHoverFontColor",
+          ].map((field) => (
+            <div className="form-input  mt-4 box_sty1" key={field}>
+              <label htmlFor={field}>
+                {field.replace(/([A-Z])/g, " $1").toUpperCase()}
+              </label>
+              <input
+                className="form-control"
+                type="text"
+                id={field}
+                name={field}
+                value={formValues[field]}
+                onChange={handleChange}
+                placeholder="FFFFFF"
+                pattern="^[0-9A-Fa-f]{6}$"
+                style={{
+                  backgroundColor:
+                    formValues[field]?.length === 6
+                      ? `#${formValues[field]}`
+                      : "#FFFFFF",
+                  color: formValues[field]?.length === 6 ? "#000000" : "inherit",
+                }}
+                required
+              />
+            </div>
+          ))} 
+
+          {/* Choose Expiration Date */}
+          <div className="form-group mt-4 box_sty1">
+            <label htmlFor="expirationDate">Choose Expiration Date</label>
+            <input
+              className="form-control"
+              type="date"
+              id="expirationDate"
+              name="expirationDate"
+              value={formValues.expirationDate}
+              onChange={handleChange}
+              min={new Date().toISOString().split("T")[0]}
+              required
+            />
+          </div>
+
           {/* Impressions */}
-          <div className="col form-group">
+          <div className="form-group mt-4 box_sty1">
+            <label htmlFor="impressions">Impressions</label>
             <input
               className="form-control"
               type="number"
@@ -139,7 +296,8 @@ const handleDataChange = (newData) => {
             />
           </div>
           {/* Conversions */}
-          <div className="col form-group">
+          <div className="form-group  mt-4 box_sty1">
+            <label htmlFor="conversions">Conversions</label>
             <input
               className="form-control"
               type="number"
@@ -151,7 +309,8 @@ const handleDataChange = (newData) => {
             />
           </div>
           {/* Revenue */}
-          <div className="col form-group">
+          <div className="form-group  mt-4 box_sty1">
+            <label htmlFor="revenue">Revenue</label>
             <input
               className="form-control"
               type="number"
@@ -163,15 +322,18 @@ const handleDataChange = (newData) => {
             />
           </div>
           {/* Enabled Checkbox */}
-          <div className="col form-group">
+          <div className="form-group  mt-4 box_sty1">
             <label>
               <input
                 type="checkbox"
                 name="enabled"
                 checked={formValues.enabled}
-                onChange={() => setFormValues((prev) => ({ ...prev, enabled: !prev.enabled }))}
+                onChange={() =>
+                  setFormValues((prev) => ({ ...prev, enabled: !prev.enabled }))
+                }
+                required
               />
-              Enabled
+              Run Until Paused
             </label>
           </div>
         </div>
@@ -191,7 +353,61 @@ const handleDataChange = (newData) => {
           {editingOffer ? "Update Offer" : "Create Offer"}
         </button>
       </div>
+
+      {/* Offer Preview Section */}
+      <div className="left-form">
+        <div
+          className="offer-preview mt-4 box_sty1 col-md-4"
+          style={{ backgroundColor: `#${formValues.backgroundColor}` }}
+        >
+          <h3>Offer Preview</h3>
+          <div className="offer-card">
+            <img
+              src="product-image.jpg"
+              alt="Product Image"
+              className="product-image"
+              style={{ color: `#${formValues.fontColor}` }}
+            />
+            <div
+              className="offer-details "
+              style={{ color: `#${formValues.fontColor}` }}
+            >
+              <h4>{formValues.offer}</h4>
+              <p className="discount">
+                {formValues.discountPercentage}% Discount
+              </p>
+              <p className="pricing">
+                <span className="original-price">
+                  Original Price ${formValues.minimumCartValue}
+                </span>
+                <br></br>
+                <span className="discounted-price">
+                  Discount Price $
+                  {(
+                    formValues.minimumCartValue -
+                    (formValues.minimumCartValue *
+                      formValues.discountPercentage) /
+                      100
+                  ).toFixed(2)}
+                </span>
+              </p>
+            </div>
+            <button
+              className="add-button"
+              style={{
+                backgroundColor: `#${formValues.buttonColor}`,
+                color: `#${formValues.buttonFontColor}`,
+                "--hover-bg-color": `#${
+                  formValues.buttonHoverColor || formValues.buttonColor
+                }`,
+              }}
+            >
+              Add it now!
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
-export default CreateNewOffer;
+export default AddOrEditOffer;

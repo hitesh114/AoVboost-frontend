@@ -1,19 +1,21 @@
-import axios from "axios";
-import { Server_URL, Items } from './APIOffer';
+ import axios from "axios";
+/* import {Items } from './APIOffer'; */
 
-export const GetItems = async () => {
+const Server_URL = "http://localhost:3004/";
+
+export const GetAPI = async (Items) => {
   const response = await axios.get(Server_URL + Items);
   return response.data;
 };
 
-export const deleteOffer = async (id) => {
+export const DeleteAPI = async (id,Items) => {
   return await axios.delete(`${Server_URL}${Items}/${id}`);
 };
 
-export const updateOffer = async (id, newOffer) => {
+export const UpdateAPI = async (id, newOffer,Items) => {
   return await axios.put(`${Server_URL}${Items}/${id}`, newOffer);
 };
 
-export const addOffer = async (newOffer) => {
-  return await axios.post(Server_URL+ Items, newOffer);
+export const AddAPI = async (newOffer,Items) => {
+  return await axios.post(`${Server_URL}${Items}`, newOffer);
 };

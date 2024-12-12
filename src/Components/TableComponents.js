@@ -1,14 +1,14 @@
-import React from "react";
-import { deleteOffer,updateOffer } from "../Apis/API";
+import { useEffect, useState } from "react";
+import { removeOffer, modifyOffer, fetchOffer } from "../Apis/APIOffer";
 import { useNavigate } from "react-router-dom";
 /* *************************************************************************** */
 function TableComponent({ data, setData }) {
   const navigate = useNavigate();
   const onDelete = async (id) => {
     try {
-      await deleteOffer(id);
-      const updatedData = data.filter((offer) => offer.id !== id);
-      setData(updatedData);
+      await removeOffer(id);
+      const fetchedData = await fetchOffer();
+      setData(fetchedData);
     } catch (error) {
       console.error("Error deleting offer:", error);
     }
@@ -21,17 +21,17 @@ function TableComponent({ data, setData }) {
       }
       return offer;
     });
-  
+
     setData(updatedData);
     const updatedOffer = updatedData.find((offer) => offer.id === id);
     try {
-      await updateOffer(id, updatedOffer);
+      await modifyOffer(id, updatedOffer);
     } catch (error) {
       console.error("Error updating offer:", error);
       setData(data);
     }
   };
-
+  /* Use UseEffect for Total */
   const totalImpressions = data.reduce((total, offer) => {
     return offer.enabled ? total + offer.impressions : total;
   }, 0);
@@ -40,13 +40,17 @@ function TableComponent({ data, setData }) {
     return offer.enabled ? total + offer.conversions : total;
   }, 0);
 
-  const totalRevenue = data.reduce((total, offer) => {
-    return offer.enabled ? total + offer.revenue : total;
-  }, 0).toFixed(2);
+  const totalRevenue = data
+    .reduce((total, offer) => {
+      return offer.enabled ? total + offer.revenue : total;
+    }, 0)
+    .toFixed(2);
 
-  const totalConversionRate = data.reduce((total, offer) => {
-    return offer.enabled ? total + parseFloat(offer.conversionRate) : total;
-  }, 0).toFixed(2);
+  const totalConversionRate = data
+    .reduce((total, offer) => {
+      return offer.enabled ? total + parseFloat(offer.conversionRate) : total;
+    }, 0)
+    .toFixed(2);
 
   /* *************************************************************************** */
   return (
@@ -55,7 +59,7 @@ function TableComponent({ data, setData }) {
         <table className="table tbl-sty1">
           <thead>
             <tr>
-            <th className="text-center"></th>
+              <th className="text-center"></th>
               <th className="text-center">Offer</th>
               <th className="text-center">Impressions</th>
               <th className="text-center">Conversions</th>
@@ -68,15 +72,15 @@ function TableComponent({ data, setData }) {
             {data.map((offer) => (
               <tr key={offer.id}>
                 <td className="text-center">
-                <label className="switch">
-                  <input
-                    type="checkbox"
-                    checked={offer.enabled}
-                    onChange={() => toggleEnable(offer.id)}
-                  />
-                  <span className="slider round"></span>
-                </label>
-              </td>
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={offer.enabled}
+                      onChange={() => toggleEnable(offer.id)}
+                    />
+                    <span className="slider round"></span>
+                  </label>
+                </td>
                 <td className="text-center">{offer.offer}</td>
                 <td className="text-center">{offer.impressions}</td>
                 <td className="text-center">{offer.conversions}</td>
@@ -107,10 +111,10 @@ function TableComponent({ data, setData }) {
             <tr>
               <th className="text-center">Total</th>
               <th></th>
-              <th className="text-center" >{totalImpressions}</th>
-              <th className="text-center" >{totalConversions}</th>
-              <th className="text-center" >${totalRevenue}</th>
-              <th className="text-center" >{totalConversionRate} %</th>
+              <th className="text-center">{totalImpressions}</th>
+              <th className="text-center">{totalConversions}</th>
+              <th className="text-center">${totalRevenue}</th>
+              <th className="text-center">{totalConversionRate} %</th>
               <th></th>
             </tr>
           </tfoot>

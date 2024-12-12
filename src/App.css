@@ -69,3 +69,22 @@ body{ background-color: #e6e6e6; }
   input:checked + .slider:before {
     transform: translateX(14px);
   }
+
+  .offer-preview {
+    position: fixed; 
+    right: 30px; 
+    top: 100px; 
+    width: 475px; 
+    max-height: 80%; 
+    overflow-y: auto; 
+    background-color: #fff; 
+    box-shadow: 0 0 5px #00000030; 
+    padding: 15px; 
+    z-index: 1000;
+    color: 000000
+  }
+
+.add-button:hover {
+  background-color: var(--hover-bg-color, inherit) !important;
+  color: var(--hover-text-color, inherit) !important;
+}
