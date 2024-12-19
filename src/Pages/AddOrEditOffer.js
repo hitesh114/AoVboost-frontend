@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  modifyOffer,
-  createOffer,
-  fetchOffer,
-  GetItems,
-} from "../Apis/APIOffer.js";
+import {modifyOffer,createOffer,fetchOffer,} from "../Apis/APIOffer.js";
 /* ***************************************************************************** */
 const AddOrEditOffer = () => {
   const [data, setData] = useState([]);
@@ -32,6 +27,7 @@ const AddOrEditOffer = () => {
     enabled: true,
   });
   const editingOffer = !!id;
+  const [loading, setLoading] = useState(false);
   /* ************************************************************************************************ */
   useEffect(() => {
     const loadData = async () => {
@@ -70,6 +66,24 @@ const AddOrEditOffer = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Form submitted");
+    const requiredFields = [
+      "offer",
+      "minimumCartValue",
+      "discountPercentage",
+      "impressions",
+      "conversions",
+      "revenue",
+    ];
+
+    const isValid = requiredFields.every((field) => {
+      return formValues[field] !== "" && formValues[field] !== undefined;
+    });
+
+    if (!isValid) {
+      alert("Please fill in all mandatory fields.");
+      return;
+    }
+
     const newOffer = {
       id: formValues.id,
       offer: formValues.offer,
@@ -98,6 +112,7 @@ const AddOrEditOffer = () => {
       enabled: formValues.enabled,
     };
     try {
+      setLoading(true);
       if (editingOffer) {
         console.log("New offer data:", newOffer);
         // Edit existing offer
@@ -109,7 +124,6 @@ const AddOrEditOffer = () => {
           )
         );
       } else {
-        // Add new offer
         const response = await createOffer(newOffer);
         setData((prevData) => [...prevData, response.data]);
       }
@@ -134,13 +148,17 @@ const AddOrEditOffer = () => {
         revenue: "",
         conversionRate: "",
         enabled: true,
-      }); // Reset form
+      });
       navigate("/offers");
     } catch (error) {
       console.error(
         "Error saving offer:",
         error.response ? error.response.data : error.message
       );
+    } finally {
+      setTimeout(() => {
+        setLoading(false); 
+      }, 1000); 
     }
   };
   /************************************************************************************************************* */
@@ -211,6 +229,7 @@ const AddOrEditOffer = () => {
               required
             >
               <option value="">Select a product</option>
+              <option value="xyz">xyz</option>
               {/* Add your product options here */}
             </select>
           </div>
@@ -229,6 +248,7 @@ const AddOrEditOffer = () => {
               required
             >
               <option value="">Select a variant</option>
+              <option value="xyz">xyz</option>
               {/* Add your variant options here */}
             </select>
           </div>
@@ -260,12 +280,13 @@ const AddOrEditOffer = () => {
                     formValues[field]?.length === 6
                       ? `#${formValues[field]}`
                       : "#FFFFFF",
-                  color: formValues[field]?.length === 6 ? "#000000" : "inherit",
+                  color:
+                    formValues[field]?.length === 6 ? "#000000" : "inherit",
                 }}
                 required
               />
             </div>
-          ))} 
+          ))}
 
           {/* Choose Expiration Date */}
           <div className="form-group mt-4 box_sty1">
